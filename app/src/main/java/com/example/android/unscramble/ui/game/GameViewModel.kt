@@ -12,15 +12,15 @@ class GameViewModel : ViewModel() {
     // List of words used in the game
     private var wordList: MutableList<String> = mutableListOf()
     private lateinit var currentWord: String
-    private var _score = 0
-    val score: Int get() = _score
-    private var _currentWordCount = 0
-    val currentWordCount: Int get() = _currentWordCount
+    private val _score = MutableLiveData<Int>()
+    val score: LiveData<Int> get() = _score
+    private val _currentWordCount = MutableLiveData<Int>()
+    val currentWordCount: LiveData<Int> get() = _currentWordCount
     //private lateinit var _currentScrambledWord: String
     //Cambiamos a MutableLiveData
     private val _currentScrambledWord = MutableLiveData<String>()
 
-    val currentScrambleWord: LiveData<String> get() = _currentScrambledWord
+    val currentScrambledWord: LiveData<String> get() = _currentScrambledWord
 
     /*
     * Updates currentWord and currentScrambledWord with the next word.
@@ -37,7 +37,8 @@ class GameViewModel : ViewModel() {
             getNextWord()
         } else {
             _currentScrambledWord.value = String(tempWord)
-            ++_currentWordCount
+            /**Incrementamos en uno MutableLIveData*/
+            _currentWordCount.value = (_currentWordCount.value)?.inc()
             wordList.add(currentWord)
         }
     }
@@ -47,7 +48,8 @@ class GameViewModel : ViewModel() {
 * Updates the next word.
 */
     fun nextWord(): Boolean {
-        return if (_currentWordCount < MAX_NO_OF_WORDS) {
+        /**Comparación no nula*/
+        return if (_currentWordCount.value!! < MAX_NO_OF_WORDS) {
             getNextWord()
             true
         } else false
@@ -62,7 +64,8 @@ class GameViewModel : ViewModel() {
     * Increases the game score if the player's word is correct.
     */
     private fun increaseScore() {
-        _score += SCORE_INCREASE
+        /**Sumando con MutableLiveData*/
+        _score.value = (_score.value)?.plus(SCORE_INCREASE)
     }
 
     /*
@@ -81,8 +84,9 @@ class GameViewModel : ViewModel() {
     * Re-initializes the game data to restart the game.
     */
     fun reinitializeData() {
-        _score = 0
-        _currentWordCount = 0
+        /**modificando la "variable" MutableLiveData*/
+        _score.value = 0
+        _currentWordCount.value = 0
         wordList.clear()
         getNextWord()
     }

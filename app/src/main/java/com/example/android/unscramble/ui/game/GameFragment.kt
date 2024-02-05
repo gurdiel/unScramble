@@ -49,7 +49,7 @@ class GameFragment : Fragment() {
         binding = GameFragmentBinding.inflate(inflater, container, false)
         Log.d("GameFragment", "GameFragment created/re-created!")
         Log.d(
-            "GameFragment", "Word: ${viewModel.currentScrambleWord} " +
+            "GameFragment", "Word: ${viewModel.currentScrambledWord} " +
                     "Score: ${viewModel.score} WordCount: ${viewModel.currentWordCount}"
         )
         return binding.root
@@ -62,19 +62,33 @@ class GameFragment : Fragment() {
         binding.submit.setOnClickListener { onSubmitWord() }
         binding.skip.setOnClickListener { onSkipWord() }
         // Update the UI
-        updateNextWordOnScreen()
-        binding.score.text = getString(R.string.score, 0)
-        binding.wordCount.text = getString(
-            R.string.word_count, 0, MAX_NO_OF_WORDS
-        )
+
+        //binding.score.text = getString(R.string.score, 0)
+        //binding.wordCount.text = getString( R.string.word_count, 0, MAX_NO_OF_WORDS )
+        //Código sin uso en LiveData
+        // Observe the currentScrambledWord LiveData.
+        // Observe the scrambledCharArray LiveData, passing in the LifecycleOwner and the observer.
+
+        viewModel.score.observe(viewLifecycleOwner)
+        { newScore -> binding.score.text = getString(R.string.score,newScore)}
+        viewModel.currentWordCount.observe(viewLifecycleOwner)
+        {newCurrentWordCount -> binding.wordCount.text =
+            getString(R.string.word_count,newCurrentWordCount, MAX_NO_OF_WORDS)}
+        /**
+         * Cuando la varibale currenScrambleWord cambia se llama al lambda que lo que hace es
+         * actualizar la caja de texto con la palabra nueva que se ha asignado a esa varibale ahora
+         * LiveDATA.  La observa durante todo su ciclo de vida.
+         * */
+        viewModel.currentScrambledWord.observe(viewLifecycleOwner)
+        { newWord -> binding.textViewUnscrambledWord.text = newWord }
     }
 
     /*
-  * Creates and shows an AlertDialog with the final score.
-  */
+    * Creates and shows an AlertDialog with the final score.
+    */
     fun showFinalScoreDialog() {
         MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.congratulations))
-            .setMessage(getString(R.string.you_scored, viewModel.score))
+            .setMessage(getString(R.string.you_scored, viewModel.score.value))//Accedemos propiedad value.
             .setCancelable(false)
             .setNegativeButton(getString(R.string.exit)) { _, _ -> exitGame() }
             .setPositiveButton(getString(R.string.play_again)) { _, _ -> restartGame() }
@@ -86,13 +100,14 @@ class GameFragment : Fragment() {
     * Displays the next scrambled word.
     */
     private fun onSubmitWord() {
+
         val playerWord = binding.textInputEditText.text.toString()
+
         if (viewModel.isUserWordCorrect(playerWord)) {
             setErrorTextField(false)
-            if (viewModel.nextWord())
-                updateNextWordOnScreen()
-            else
-                showFinalScoreDialog()
+            if (!viewModel.nextWord())
+                showFinalScoreDialog()  //modificamos el if ya no verificamos la condición para
+                                        //actualizar la app.
         } else {
             setErrorTextField(true)
         }
@@ -106,7 +121,6 @@ class GameFragment : Fragment() {
 
         if (viewModel.nextWord()) {
             setErrorTextField(false)
-            updateNextWordOnScreen()
         } else {
             showFinalScoreDialog()
         }
@@ -129,7 +143,7 @@ class GameFragment : Fragment() {
     private fun restartGame() {
         viewModel.reinitializeData()
         setErrorTextField(false)
-        updateNextWordOnScreen()
+
     }
 
     /*
@@ -155,10 +169,10 @@ class GameFragment : Fragment() {
     /*
      * Displays the next scrambled word on screen.
      */
-    private fun updateNextWordOnScreen() {
-        binding.textViewUnscrambledWord.text = viewModel.currentScrambleWord
-    }
-
+    /**LiveData nos facilita el trabajo, borramos también todas las llamadas.
+     * private fun updateNextWordOnScreen() {
+    binding.textViewUnscrambledWord.text = viewModel.currentScrambleWord
+    }*/
     override fun onDetach() {
         super.onDetach()
         Log.d("GameFragment", "GameFragment destroyed!")
