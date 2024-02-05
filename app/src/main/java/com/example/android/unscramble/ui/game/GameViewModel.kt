@@ -12,9 +12,12 @@ class GameViewModel : ViewModel() {
     // List of words used in the game
     private var wordList: MutableList<String> = mutableListOf()
     private lateinit var currentWord: String
-    private val _score = MutableLiveData<Int>()
+    private val _score = MutableLiveData<Int>(0)
+
+    /**Faltaba inicializar.*/
+
     val score: LiveData<Int> get() = _score
-    private val _currentWordCount = MutableLiveData<Int>()
+    private val _currentWordCount = MutableLiveData<Int>(0)
     val currentWordCount: LiveData<Int> get() = _currentWordCount
     //private lateinit var _currentScrambledWord: String
     //Cambiamos a MutableLiveData
