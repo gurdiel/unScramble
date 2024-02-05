@@ -32,12 +32,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  */
 class GameFragment : Fragment() {
 
-    private var score = 0
-    private var currentWordCount = 0
-    private var currentScrambledWord = "test"
     private val viewModel:GameViewModel by viewModels()
-
-
     // Binding object instance with access to the views in the game_fragment.xml layout
     private lateinit var binding: GameFragmentBinding
 
@@ -52,6 +47,8 @@ class GameFragment : Fragment() {
         // Inflate the layout XML file and return a binding object instance
         binding = GameFragmentBinding.inflate(inflater, container, false)
         Log.d("GameFragment", "GameFragment created/re-created!")
+        Log.d("GameFragment","Word: ${viewModel.currentScrambleWord} " +
+            "Score: ${viewModel.score} WordCount: ${viewModel.currentWordCount}")
         return binding.root
     }
 
@@ -68,6 +65,9 @@ class GameFragment : Fragment() {
                 R.string.word_count, 0, MAX_NO_OF_WORDS)
     }
 
+    /*
+  * Creates and shows an AlertDialog with the final score.
+  */
     fun showFinalScoreDialog(){
         MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.congratulations))
             .setMessage(getString(R.string.you_scored,viewModel.score))
@@ -123,6 +123,7 @@ class GameFragment : Fragment() {
      * restart the game.
      */
     private fun restartGame() {
+        viewModel.reinitializeData()
         setErrorTextField(false)
         updateNextWordOnScreen()
     }
