@@ -21,6 +21,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.android.unscramble.R
@@ -46,7 +47,7 @@ class GameFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout XML file and return a binding object instance
-        binding = GameFragmentBinding.inflate(inflater, container, false)
+        binding = DataBindingUtil.inflate(inflater,R.layout.game_fragment,container,false)
         Log.d("GameFragment", "GameFragment created/re-created!")
         Log.d(
             "GameFragment", "Word: ${viewModel.currentScrambledWord} " +
@@ -63,25 +64,31 @@ class GameFragment : Fragment() {
         binding.skip.setOnClickListener { onSkipWord() }
         // Update the UI
 
+        /**Vinculamos con la variables creadas en el layaout*/
+        binding.gameViewModel = viewModel
+        binding.maxNoOfWords = MAX_NO_OF_WORDS
+        binding.lifecycleOwner = viewLifecycleOwner
+
         //binding.score.text = getString(R.string.score, 0)
         //binding.wordCount.text = getString( R.string.word_count, 0, MAX_NO_OF_WORDS )
         //Código sin uso en LiveData
         // Observe the currentScrambledWord LiveData.
         // Observe the scrambledCharArray LiveData, passing in the LifecycleOwner and the observer.
 
-        viewModel.score.observe(viewLifecycleOwner)
+        /**viewModel.score.observe(viewLifecycleOwner)
         { newScore -> binding.score.text = getString(R.string.score,newScore)}
         
         viewModel.currentWordCount.observe(viewLifecycleOwner)
         {newCurrentWordCount -> binding.wordCount.text =
-            getString(R.string.word_count,newCurrentWordCount, MAX_NO_OF_WORDS)}
+            getString(R.string.word_count,newCurrentWordCount, MAX_NO_OF_WORDS)}*/
         /**
          * Cuando la varibale currenScrambleWord cambia se llama al lambda que lo que hace es
          * actualizar la caja de texto con la palabra nueva que se ha asignado a esa varibale ahora
          * LiveDATA.  La observa durante todo su ciclo de vida.
          * */
-        viewModel.currentScrambledWord.observe(viewLifecycleOwner)
-        { newWord -> binding.textViewUnscrambledWord.text = newWord }
+        //Con el LiveData ya no necesitamos los observe.
+        //viewModel.currentScrambledWord.observe(viewLifecycleOwner)
+        //{ newWord -> binding.textViewUnscrambledWord.text = newWord }
     }
 
     /*
